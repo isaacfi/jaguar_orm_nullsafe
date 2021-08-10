@@ -1,27 +1,15 @@
-part of query.core;
+part of query;
 
-class AliasedRowSource {
-  final RowSource source;
+/// Table selector
+abstract class Table {}
+
+/// TableName
+class TableName implements Table {
+  final String tableName;
 
   final String alias;
 
-  AliasedRowSource(this.source, {this.alias});
-}
-
-class RowSourceExpr extends Expression {
-  final RowSource expr;
-
-  RowSourceExpr(this.expr);
-}
-
-/// Table selector
-abstract class RowSource {}
-
-/// TableName
-class Table implements RowSource {
-  final String name;
-
-  Table(this.name);
+  TableName(this.tableName, [this.alias]);
 }
 
 /// A SQL join type that can be used in 'SELECT' statements
@@ -50,60 +38,54 @@ class JoinType {
   static const JoinType CrossJoin = const JoinType._(4, 'CROSS JOIN');
 }
 
-class JoinedTable {
+class JoinedTable implements Table {
   final JoinType _type;
 
-  AliasedRowSource _to;
+  final TableName _to;
 
-  Expression _on;
+  final _on = And();
 
-  JoinedTable(this._type, /* String | RowSource */ source,
-      {String alias, Expression on}) {
+  JoinedTable(this._type, String tableName, [String alias])
+      : _to = TableName(tableName, alias) {
     _info = QueryJoinedTableInfo(this);
-
-    if (source is String) {
-      source = Table(source);
-    }
-    if (source is RowSource) {
-      _to = AliasedRowSource(source, alias: alias);
-    } else {
-      throw UnsupportedError("");
-    }
   }
 
   factory JoinedTable.innerJoin(String tableName, [String alias]) =>
-      JoinedTable(JoinType.InnerJoin, tableName, alias: alias);
+      JoinedTable(JoinType.InnerJoin, tableName, alias);
 
   factory JoinedTable.leftJoin(String tableName, [String alias]) =>
-      JoinedTable(JoinType.LeftJoin, tableName, alias: alias);
+      JoinedTable(JoinType.LeftJoin, tableName, alias);
 
   factory JoinedTable.rightJoin(String tableName, [String alias]) =>
-      JoinedTable(JoinType.RightJoin, tableName, alias: alias);
+      JoinedTable(JoinType.RightJoin, tableName, alias);
 
   factory JoinedTable.fullJoin(String tableName, [String alias]) =>
-      JoinedTable(JoinType.FullJoin, tableName, alias: alias);
+      JoinedTable(JoinType.FullJoin, tableName, alias);
 
   factory JoinedTable.crossJoin(String tableName, [String alias]) =>
-      JoinedTable(JoinType.CrossJoin, tableName, alias: alias);
+      JoinedTable(JoinType.CrossJoin, tableName, alias);
 
-  JoinedTable on(Expression expr) {
-    _on = expr;
+  JoinedTable joinOn(Expression onExp) {
+    if (_type == null || _to == null) {
+      throw Exception('Query has no join on it!');
+    }
+
+    _on.and(onExp);
+
     return this;
   }
 
   void validate() {
     if (_to == null) {
-      if (_type != null || _on != null) {
+      if (_type != null || _on.length != 0) {
         throw Exception('Join not initialized properly!');
       }
     } else {
-      if (_type == null || _on == null) {
+      if (_type == null || _on.length == 0) {
         throw Exception('Join not initialized properly!');
       }
     }
   }
-
-  // TODO add relations ops
 
   QueryJoinedTableInfo _info;
 
@@ -117,8 +99,8 @@ class QueryJoinedTableInfo {
 
   JoinType get type => _inner._type;
 
-  AliasedRowSource get to => _inner._to;
+  TableName get to => _inner._to;
 
   // TODO immutable
-  Expression get on => _inner._on;
+  And get on => _inner._on;
 }

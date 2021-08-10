@@ -1,4 +1,4 @@
-part of query.core;
+part of query;
 
 class Drop implements Statement {
   final _tables = <String>[];
@@ -22,5 +22,5 @@ class Drop implements Statement {
     return this;
   }
 
-  Future<void> exec(Connection connection) => connection.dropTable(this);
+  Future<void> exec(Adapter adapter) => adapter.dropTable(this);
 }

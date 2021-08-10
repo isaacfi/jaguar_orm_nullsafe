@@ -11,13 +11,12 @@ import '../../model/reflexive/one_to_many/simple.dart';
 final adapter =
     PgAdapter('postgres', username: 'postgres', password: 'dart_jaguar');
 
-final beanRepo = BeanRepo();
-
 main() async {
-  // Create beans
-  final dirBean = DirectoryBean(adapter, beanRepo);
+  // Connect to database
+  await adapter.connect();
 
-  beanRepo.addAll([dirBean]);
+  // Create beans
+  final dirBean = DirectoryBean(adapter);
 
   // Drop old tables
   await dirBean.drop();

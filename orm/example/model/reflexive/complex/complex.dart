@@ -13,10 +13,10 @@ class ProductItems {
   ProductItems.make({this.id, this.name});
 
   /// fields
-  @primaryKey
+  @PrimaryKey()
   String id;
 
-  @Column(notNull: true)
+  @Column(isNullable: true)
   String name;
 
   @ManyToMany(ProductItemsPivotBean, ProductBean)
@@ -28,9 +28,19 @@ class ProductItems {
 /// bean
 @GenBean()
 class ProductItemsBean extends Bean<ProductItems> with _ProductItemsBean {
-  final BeanRepo beanRepo;
+  ProductItemsPivotBean _productItemsPivotBean;
+  ProductItemsPivot productItemsPivot;
+  ProductBean productBean;
 
-  ProductItemsBean(Adapter adapter, this.beanRepo) : super(adapter);
+  ProductItemsBean(Adapter adapter)
+      : productItemsPivot = ProductItemsPivot(),
+        productBean = ProductBean(adapter),
+        super(adapter);
+
+  ProductItemsPivotBean get productItemsPivotBean {
+    _productItemsPivotBean ??= ProductItemsPivotBean(adapter);
+    return _productItemsPivotBean;
+  }
 
   String get tableName => "product_list";
 }
@@ -42,19 +52,31 @@ class ProductItemsPivot {
   ProductItemsPivot.make(this.productId, this.productListId);
 
   /// fields
-  @BelongsTo.many(ProductBean, references: 'id')
+  @BelongsTo.many(ProductBean)
   String productId;
 
-  @BelongsTo.many(ProductItemsBean, references: 'id')
+  @BelongsTo.many(ProductItemsBean)
   String productListId;
 }
 
 @GenBean()
 class ProductItemsPivotBean extends Bean<ProductItemsPivot>
     with _ProductItemsPivotBean {
-  final BeanRepo beanRepo;
+  ProductItemsBean _productItemsBean;
 
-  ProductItemsPivotBean(Adapter adapter, this.beanRepo) : super(adapter);
+  ProductBean _productBean;
+
+  ProductItemsPivotBean(Adapter adapter) : super(adapter);
+
+  ProductBean get productBean {
+    _productBean ??= ProductBean(adapter);
+    return _productBean;
+  }
+
+  ProductItemsBean get productItemsBean {
+    _productItemsBean ??= ProductItemsBean(adapter);
+    return _productItemsBean;
+  }
 
   String get tableName => "product_list_pivot";
 }
@@ -65,17 +87,16 @@ class Product {
   Product.make({this.id, this.name, this.sku, this.categoryId});
 
   /// fields
-  @primaryKey
+  @PrimaryKey()
   String id;
 
-  @Column(notNull: false)
+  @Column(isNullable: false)
   String sku;
 
-  @Column(notNull: true)
+  @Column(isNullable: true)
   String name;
 
-  @Column(notNull: true)
-  @BelongsTo.many(CategoryBean, references: 'id')
+  @BelongsTo(CategoryBean, isNullable: true, byHasMany: true)
   int categoryId;
 
   @ManyToMany(ProductItemsPivotBean, ProductItemsBean)
@@ -89,16 +110,29 @@ class Product {
 /// bean
 @GenBean()
 class ProductBean extends Bean<Product> with _ProductBean {
-  final BeanRepo beanRepo;
+  ProductItemsBean _productItemsBean;
+  ProductItemsPivotBean _productPivotBean;
+  ProductBean(Adapter adapter) : super(adapter);
 
-  ProductBean(Adapter adapter, this.beanRepo) : super(adapter);
+  ProductItemsBean get productItemsBean {
+    _productItemsBean ??= ProductItemsBean(adapter);
+    return _productItemsBean;
+  }
+
+  ProductItemsPivotBean get productItemsPivotBean {
+    _productPivotBean ??= ProductItemsPivotBean(adapter);
+    return _productPivotBean;
+  }
 
   /// Table name for the model this bean manages
   String get tableName => "product";
+
+  @override
+  CategoryBean get categoryBean => CategoryBean(adapter);
 }
 
 class Category {
-  @primaryKey
+  @PrimaryKey()
   int id;
 
   @HasMany(ProductBean)
@@ -110,9 +144,9 @@ class Category {
 /// bean
 @GenBean()
 class CategoryBean extends Bean<Category> with _CategoryBean {
-  final BeanRepo beanRepo;
+  ProductBean get productBean => ProductBean(adapter);
 
-  CategoryBean(Adapter adapter, this.beanRepo) : super(adapter);
+  CategoryBean(Adapter adapter) : super(adapter);
 
   /// Table name for the model this bean manages
   String get tableName => "category";

@@ -5,9 +5,6 @@ import 'package:jaguar_query/jaguar_query.dart';
 import 'package:jaguar_query_postgres/composer.dart';
 
 main() {
-  Update update1 = Sql.update('post')
-      .eq('authorId', 1)
-      .set('dislikes', 0)
-      .set('likes', E('likes + 1'));
+  Update update1 = Sql.update('posts').eq('likes', 5).setValue('likes', 1);
   print(composeUpdate(update1));
 }

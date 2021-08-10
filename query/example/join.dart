@@ -25,41 +25,42 @@ class Post {
 }
 
 main() async {
-  final connection = await PgConn.open('postgres',
-      username: 'postgres', password: 'dart_jaguar');
+  final PgAdapter adapter =
+      new PgAdapter('example', username: 'postgres', password: 'dart_jaguar');
+  await adapter.connect();
 
-  await Sql.drop(Post.tableName, onlyIfExists: true).exec(connection);
-  await Sql.drop(Author.tableName, onlyIfExists: true).exec(connection);
+  await Sql.drop(Post.tableName).exec(adapter);
+  await Sql.drop(Author.tableName).exec(adapter);
 
   await Sql.create(Author.tableName)
-      .addInt('id', isPrimary: true)
+      .addPrimaryInt('id')
       .addStr('name', length: 50)
-      .exec(connection);
+      .exec(adapter);
 
   await Sql.create(Post.tableName)
-      .addInt('id', isPrimary: true)
-      .addInt('authorId', foreign: References('author', 'id'))
+      .addPrimaryInt('id')
+      .addInt('authorId', foreignTable: 'author', foreignCol: 'id')
       .addStr('message', length: 150)
       .addInt('likes')
-      .exec(connection);
+      .exec(adapter);
 
   await Sql.insert(Author.tableName).setValues(<String, dynamic>{
     "id": '1',
     "name": "Ho",
-  }).exec(connection);
+  }).exec(adapter);
 
   await Sql.insert(Post.tableName).setValues(<String, dynamic>{
     "id": 9,
     "authorid": 1,
     "message": "Message 9 from 3!",
     "likes": 13,
-  }).exec(connection);
+  }).exec(adapter);
 
   final data = await Sql.find(Post.tableName)
       .innerJoin(Author.tableName)
-      .joinOn(col('post.authorid').eq(col('author.id')))
-      .where(col('author.id').eq(1))
-      .exec(connection)
+      .joinOn(Field.inTable('post', 'authorid').eqF('id', table: 'author'))
+      .where(eq('author.id', 1))
+      .exec(adapter)
       .one();
   print(data);
 

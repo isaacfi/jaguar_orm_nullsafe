@@ -24,3 +24,4 @@ doc/api/
 *.iws
 sqflite/.flutter-plugins
 sqflite/.flutter-plugins
+.vscode/settings.json

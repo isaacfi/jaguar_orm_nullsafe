@@ -5,11 +5,19 @@ import 'package:jaguar_query/jaguar_query.dart';
 import 'package:jaguar_query_postgres/composer.dart';
 
 main() {
-  Find find = Sql.find('post')
-      .sel('authorId')
-      .where((col('likes') > 10) & (col('dislikes') > 5))
-      .groupBy('authorId')
-      .orderBy('authorId', desc: true)
-      .limit(10);
+  Find find = Sql.find('posts')
+      .sel('message')
+      .where(IntField('likes').eq(10) & IntField('replies').eq(5))
+      .where(eq('author', 'teja') | like('author', 'kleak*'))
+      .orderBy('author', true)
+      .limit(10)
+      .groupByMany(['message', 'likes']);
   print(composeFind(find));
+
+  Find colCompare = Sql.find('posts')
+      .where(Field('author').eq(Field.inTable('authors', 'id')))
+      .orderBy('author', true)
+      .limit(10)
+      .groupByMany(['message', 'likes']);
+  print(composeFind(colCompare));
 }

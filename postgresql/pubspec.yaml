@@ -10,7 +10,8 @@ environment:
   sdk: '>=2.0.0-dev.55.0 <2.0.0'
 
 dependencies:
-  jaguar_query: ^2.1.2
+  jaguar_query: # ^2.1.2
+    path: ../query
   logging:
   postgresql2: ^0.3.4
 

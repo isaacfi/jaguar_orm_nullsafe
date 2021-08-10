@@ -8,11 +8,10 @@ import 'package:jaguar_query_postgres/jaguar_query_postgres.dart';
 part 'simple.jorm.dart';
 
 class User {
-  @primaryKey
-  @Str(length: 50)
+  @PrimaryKey(length: 50)
   String id;
 
-  @Str(length: 50)
+  @Column(length: 50)
   String name;
 
   @HasOne(AddressBean)
@@ -27,20 +26,16 @@ class User {
       return id == other.id && name == other.name && address == other.address;
     return false;
   }
-
-  @override
-  int get hashCode => super.hashCode;
 }
 
 class Address {
-  @primaryKey
-  @Str(length: 50)
+  @PrimaryKey(length: 50)
   String id;
 
-  @Str(length: 150)
+  @Column(length: 150)
   String street;
 
-  @BelongsTo(UserBean, references: 'id')
+  @BelongsTo(UserBean)
   String userId;
 
   Address({this.id, this.street, this.userId});
@@ -52,25 +47,25 @@ class Address {
       return id == other.id && street == other.street && userId == other.userId;
     return false;
   }
-
-  @override
-  int get hashCode => super.hashCode;
 }
 
 @GenBean()
 class UserBean extends Bean<User> with _UserBean {
-  UserBean(Adapter adapter, this.beanRepo) : super(adapter);
+  UserBean(Adapter adapter)
+      : addressBean = AddressBean(adapter),
+        super(adapter);
 
-  final BeanRepo beanRepo;
+  final AddressBean addressBean;
 
   String get tableName => 'oto_simple_user';
 }
 
 @GenBean()
 class AddressBean extends Bean<Address> with _AddressBean {
-  AddressBean(Adapter adapter, this.beanRepo) : super(adapter);
+  UserBean _userBean;
+  UserBean get userBean => _userBean ??= UserBean(adapter);
 
-  final BeanRepo beanRepo;
+  AddressBean(Adapter adapter) : super(adapter);
 
   String get tableName => 'oto_simple_address';
 }

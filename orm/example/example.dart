@@ -5,17 +5,13 @@ import 'package:jaguar_orm/jaguar_orm.dart';
 part 'example.jorm.dart';
 
 class CartItem {
-  @primaryKey
+  @PrimaryKey(auto: true)
   int id;
-
   double amount;
-
-  @Column(notNull: true)
+  @Column(isNullable: true)
   String product;
-
   int quantity;
-
-  @BelongsTo.many(CartBean, references: 'id')
+  @BelongsTo(CartBean)
   int cartId;
 
   CartItem({this.amount, this.product, this.quantity, this.id});
@@ -49,21 +45,22 @@ class CartItem {
 
 @GenBean()
 class CartItemBean extends Bean<CartItem> with _CartItemBean {
-  final BeanRepo beanRepo;
+  CartItemBean(Adapter adapter) : super(adapter);
 
-  CartItemBean(Adapter adapter, this.beanRepo) : super(adapter);
+  CartBean _cartBean;
 
   @override
   String get tableName => 'cartItem';
+
+  @override
+  CartBean get cartBean => _cartBean ??= CartBean(adapter);
 }
 
 class Cart {
-  @primaryKey
+  @PrimaryKey(auto: true)
   int id;
-
   @HasMany(CartItemBean)
   List<CartItem> items;
-
   double amount;
 
   Cart({this.id, this.amount = 0.0, this.items = const []});
@@ -74,6 +71,10 @@ class Cart {
       amount: amount ?? this.amount,
       items: items ?? this.items,
     );
+  }
+
+  String get amountLabel {
+    //return kCurrencyFormat.format(amount);
   }
 
   @override
@@ -93,9 +94,12 @@ class Cart {
 
 @GenBean()
 class CartBean extends Bean<Cart> with _CartBean {
-  final BeanRepo beanRepo;
+  CartBean(Adapter adapter)
+      : cartItemBean = CartItemBean(adapter),
+        super(adapter);
 
-  CartBean(Adapter adapter, this.beanRepo) : super(adapter);
+  @override
+  final CartItemBean cartItemBean;
 
   @override
   String get tableName => 'cart';

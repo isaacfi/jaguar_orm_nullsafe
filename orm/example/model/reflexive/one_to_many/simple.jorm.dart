@@ -52,39 +52,28 @@ abstract class _DirectoryBean implements Bean<Directory> {
     return ret;
   }
 
-  Future<void> createTable(
-      {bool ifNotExists = false, Connection withConn}) async {
+  Future<void> createTable({bool ifNotExists = false}) async {
     final st = Sql.create(tableName, ifNotExists: ifNotExists);
-    st.addByType(
-      id.name,
-      Str(length: 50),
-      isPrimary: true,
-    );
-    st.addByType(
-      name.name,
-      Str(length: 50),
-    );
-    st.addByType(
-      parentId.name,
-      Str(),
-      notNull: true,
-      foreign: References(directoryBean.tableName, "id"),
-    );
-    return adapter.createTable(st, withConn: withConn);
+    st.addStr(id.name, primary: true, length: 50, isNullable: false);
+    st.addStr(name.name, length: 50, isNullable: false);
+    st.addStr(parentId.name,
+        foreignTable: directoryBean.tableName,
+        foreignCol: 'id',
+        isNullable: true);
+    return adapter.createTable(st);
   }
 
   Future<dynamic> insert(Directory model,
       {bool cascade = false,
       bool onlyNonNull = false,
-      Set<String> only,
-      Connection withConn}) async {
+      Set<String> only}) async {
     final Insert insert = inserter
         .setMany(toSetColumns(model, only: only, onlyNonNull: onlyNonNull));
-    var retId = await adapter.insert(insert, withConn: withConn);
+    var retId = await adapter.insert(insert);
     if (cascade) {
       Directory newModel;
       if (model.child != null) {
-        newModel ??= await find(model.id, withConn: withConn);
+        newModel ??= await find(model.id);
         model.child
             .forEach((x) => directoryBean.associateDirectory(x, newModel));
         for (final child in model.child) {
@@ -98,12 +87,11 @@ abstract class _DirectoryBean implements Bean<Directory> {
   Future<void> insertMany(List<Directory> models,
       {bool cascade = false,
       bool onlyNonNull = false,
-      Set<String> only,
-      Connection withConn}) async {
+      Set<String> only}) async {
     if (cascade) {
       final List<Future> futures = [];
       for (var model in models) {
-        futures.add(insert(model, cascade: cascade, withConn: withConn));
+        futures.add(insert(model, cascade: cascade));
       }
       await Future.wait(futures);
       return;
@@ -112,8 +100,8 @@ abstract class _DirectoryBean implements Bean<Directory> {
           .map((model) =>
               toSetColumns(model, only: only, onlyNonNull: onlyNonNull))
           .toList();
-      final InsertMany insert = insertser.addAll(data);
-      await adapter.insertMany(insert, withConn: withConn);
+      final InsertMany insert = inserters.addAll(data);
+      await adapter.insertMany(insert);
       return;
     }
   }
@@ -121,20 +109,18 @@ abstract class _DirectoryBean implements Bean<Directory> {
   Future<dynamic> upsert(Directory model,
       {bool cascade = false,
       Set<String> only,
-      bool onlyNonNull = false,
-      Connection withConn}) async {
+      bool onlyNonNull = false}) async {
     final Upsert upsert = upserter
         .setMany(toSetColumns(model, only: only, onlyNonNull: onlyNonNull));
-    var retId = await adapter.upsert(upsert, withConn: withConn);
+    var retId = await adapter.upsert(upsert);
     if (cascade) {
       Directory newModel;
       if (model.child != null) {
-        newModel ??= await find(model.id, withConn: withConn);
+        newModel ??= await find(model.id);
         model.child
             .forEach((x) => directoryBean.associateDirectory(x, newModel));
         for (final child in model.child) {
-          await directoryBean.upsert(child,
-              cascade: cascade, withConn: withConn);
+          await directoryBean.upsert(child, cascade: cascade);
         }
       }
     }
@@ -144,12 +130,11 @@ abstract class _DirectoryBean implements Bean<Directory> {
   Future<void> upsertMany(List<Directory> models,
       {bool cascade = false,
       bool onlyNonNull = false,
-      Set<String> only,
-      Connection withConn}) async {
+      Set<String> only}) async {
     if (cascade) {
       final List<Future> futures = [];
       for (var model in models) {
-        futures.add(upsert(model, cascade: cascade, withConn: withConn));
+        futures.add(upsert(model, cascade: cascade));
       }
       await Future.wait(futures);
       return;
@@ -160,8 +145,8 @@ abstract class _DirectoryBean implements Bean<Directory> {
         data.add(
             toSetColumns(model, only: only, onlyNonNull: onlyNonNull).toList());
       }
-      final UpsertMany upsert = upsertser.addAll(data);
-      await adapter.upsertMany(upsert, withConn: withConn);
+      final UpsertMany upsert = upserters.addAll(data);
+      await adapter.upsertMany(upsert);
       return;
     }
   }
@@ -170,23 +155,22 @@ abstract class _DirectoryBean implements Bean<Directory> {
       {bool cascade = false,
       bool associate = false,
       Set<String> only,
-      bool onlyNonNull = false,
-      Connection withConn}) async {
-    final Update update = updater.where(this.id.eq(model.id)).setMany(
-        toSetColumns(model,
-            only: only, onlyNonNull: onlyNonNull, update: true));
-    final ret = adapter.update(update, withConn: withConn);
+      bool onlyNonNull = false}) async {
+    final Update update = updater
+        .where(this.id.eq(model.id))
+        .setMany(toSetColumns(model, only: only, onlyNonNull: onlyNonNull));
+    final ret = adapter.update(update);
     if (cascade) {
       Directory newModel;
       if (model.child != null) {
         if (associate) {
-          newModel ??= await find(model.id, withConn: withConn);
+          newModel ??= await find(model.id);
           model.child
               .forEach((x) => directoryBean.associateDirectory(x, newModel));
         }
         for (final child in model.child) {
           await directoryBean.update(child,
-              cascade: cascade, associate: associate, withConn: withConn);
+              cascade: cascade, associate: associate);
         }
       }
     }
@@ -196,12 +180,11 @@ abstract class _DirectoryBean implements Bean<Directory> {
   Future<void> updateMany(List<Directory> models,
       {bool cascade = false,
       bool onlyNonNull = false,
-      Set<String> only,
-      Connection withConn}) async {
+      Set<String> only}) async {
     if (cascade) {
       final List<Future> futures = [];
       for (var model in models) {
-        futures.add(update(model, cascade: cascade, withConn: withConn));
+        futures.add(update(model, cascade: cascade));
       }
       await Future.wait(futures);
       return;
@@ -210,61 +193,59 @@ abstract class _DirectoryBean implements Bean<Directory> {
       final List<Expression> where = [];
       for (var i = 0; i < models.length; ++i) {
         var model = models[i];
-        data.add(toSetColumns(model,
-                only: only, onlyNonNull: onlyNonNull, update: true)
-            .toList());
+        data.add(
+            toSetColumns(model, only: only, onlyNonNull: onlyNonNull).toList());
         where.add(this.id.eq(model.id));
       }
-      final UpdateMany update = updateser.addAll(data, where);
-      await adapter.updateMany(update, withConn: withConn);
+      final UpdateMany update = updaters.addAll(data, where);
+      await adapter.updateMany(update);
       return;
     }
   }
 
   Future<Directory> find(String id,
-      {bool preload = false, bool cascade = false, Connection withConn}) async {
+      {bool preload = false, bool cascade = false}) async {
     final Find find = finder.where(this.id.eq(id));
-    final Directory model = await findOne(find, withConn: withConn);
+    final Directory model = await findOne(find);
     if (preload && model != null) {
-      await this.preload(model, cascade: cascade, withConn: withConn);
+      await this.preload(model, cascade: cascade);
     }
     return model;
   }
 
-  Future<int> remove(String id,
-      {bool cascade = false, Connection withConn}) async {
+  Future<int> remove(String id, {bool cascade = false}) async {
     if (cascade) {
-      final Directory newModel = await find(id, withConn: withConn);
+      final Directory newModel = await find(id);
       if (newModel != null) {
-        await directoryBean.removeByDirectory(newModel.id, withConn: withConn);
+        await directoryBean.removeByDirectory(newModel.id);
       }
     }
     final Remove remove = remover.where(this.id.eq(id));
-    return adapter.remove(remove, withConn: withConn);
+    return adapter.remove(remove);
   }
 
-  Future<int> removeMany(List<Directory> models, {Connection withConn}) async {
+  Future<int> removeMany(List<Directory> models) async {
 // Return if models is empty. If this is not done, all records will be removed!
     if (models == null || models.isEmpty) return 0;
     final Remove remove = remover;
     for (final model in models) {
       remove.or(this.id.eq(model.id));
     }
-    return adapter.remove(remove, withConn: withConn);
+    return adapter.remove(remove);
   }
 
   Future<List<Directory>> findByDirectory(String parentId,
-      {bool preload = false, bool cascade = false, Connection withConn}) async {
+      {bool preload = false, bool cascade = false}) async {
     final Find find = finder.where(this.parentId.eq(parentId));
-    final List<Directory> models = await findMany(find, withConn: withConn);
+    final List<Directory> models = await findMany(find);
     if (preload) {
-      await this.preloadAll(models, cascade: cascade, withConn: withConn);
+      await this.preloadAll(models, cascade: cascade);
     }
     return models;
   }
 
   Future<List<Directory>> findByDirectoryList(List<Directory> models,
-      {bool preload = false, bool cascade = false, Connection withConn}) async {
+      {bool preload = false, bool cascade = false}) async {
 // Return if models is empty. If this is not done, all the records will be returned!
     if (models == null || models.isEmpty) return [];
     final Find find = finder;
@@ -273,35 +254,28 @@ abstract class _DirectoryBean implements Bean<Directory> {
     }
     final List<Directory> retModels = await findMany(find);
     if (preload) {
-      await this.preloadAll(retModels, cascade: cascade, withConn: withConn);
+      await this.preloadAll(retModels, cascade: cascade);
     }
     return retModels;
   }
 
-  Future<int> removeByDirectory(String parentId, {Connection withConn}) async {
+  Future<int> removeByDirectory(String parentId) async {
     final Remove rm = remover.where(this.parentId.eq(parentId));
-    return await adapter.remove(rm, withConn: withConn);
+    return await adapter.remove(rm);
   }
 
   void associateDirectory(Directory child, Directory parent) {
     child.parentId = parent.id;
   }
 
-  Future<List<Directory>> fetchDirectory(Directory model,
-      {Connection withConn}) async {
-    return directoryBean.findWhere(directoryBean.id.eq(model.parentId),
-        withConn: withConn);
-  }
-
-  Future<Directory> preload(Directory model,
-      {bool cascade = false, Connection withConn}) async {
+  Future<Directory> preload(Directory model, {bool cascade = false}) async {
     model.child = await directoryBean.findByDirectory(model.id,
-        preload: cascade, cascade: cascade, withConn: withConn);
+        preload: cascade, cascade: cascade);
     return model;
   }
 
   Future<List<Directory>> preloadAll(List<Directory> models,
-      {bool cascade = false, Connection withConn}) async {
+      {bool cascade = false}) async {
     models.forEach((Directory model) => model.child ??= []);
     await OneToXHelper.preloadAll<Directory, Directory>(
         models,
@@ -310,11 +284,9 @@ abstract class _DirectoryBean implements Bean<Directory> {
         (Directory model) => [model.parentId],
         (Directory model, Directory child) =>
             model.child = List.from(model.child)..add(child),
-        cascade: cascade,
-        withConn: withConn);
+        cascade: cascade);
     return models;
   }
 
-  DirectoryBean get directoryBean => beanRepo[DirectoryBean];
-  BeanRepo get beanRepo;
+  DirectoryBean get directoryBean;
 }

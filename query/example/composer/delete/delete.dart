@@ -5,6 +5,6 @@ import 'package:jaguar_query/jaguar_query.dart';
 import 'package:jaguar_query_postgres/composer.dart';
 
 main() {
-  Remove delete = Sql.remove('post').where(col('authorId').eq(1));
+  Remove delete = Sql.remove('posts').where(eq('author', 'teja'));
   print(composeRemove(delete));
 }

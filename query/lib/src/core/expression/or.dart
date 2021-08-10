@@ -1,4 +1,4 @@
-part of 'expression.dart';
+part of query;
 
 /// A 'logical or' expression of two or more expressions
 class Or extends Expression {

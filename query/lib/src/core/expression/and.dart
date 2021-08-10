@@ -1,4 +1,4 @@
-part of 'expression.dart';
+part of query;
 
 /// A 'logical and' expression of two or more expressions
 class And extends Expression {
@@ -6,7 +6,7 @@ class And extends Expression {
   final _expressions = <Expression>[];
 
   And() {
-    _expOut = UnmodifiableListView<Expression>(_expressions);
+    _expOut = new UnmodifiableListView<Expression>(_expressions);
   }
 
   UnmodifiableListView<Expression> _expOut;
@@ -30,7 +30,7 @@ class And extends Expression {
 
   /// Creates a 'logical or' expression of this expression and the [other]
   Or or(Expression exp) {
-    Or ret = Or();
+    Or ret = new Or();
 
     if (this.length != 0) {
       ret = ret.or(this);

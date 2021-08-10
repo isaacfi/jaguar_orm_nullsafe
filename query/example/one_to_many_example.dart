@@ -36,53 +36,54 @@ class Post {
         "likes": model.likes,
       };
 
-  static Post fromMap(Map map) => Post()
+  static Post fromMap(Map map) => new Post()
     ..id = map['_id']
     ..authorId = map['authorid']
     ..message = map['message']
     ..likes = map['likes'];
 }
 
-PgConn conn;
+final PgAdapter adapter =
+    new PgAdapter('example', username: 'postgres', password: 'dart_jaguar');
 
 Future<void> dropTables() async {
-  final st = Drop(['post', 'author'], onlyIfExists: true);
+  final st = new Drop(['post', 'author'], onlyIfExists: true);
   print(composeDrop(st));
-  await conn.dropTable(st);
+  await adapter.dropTable(st);
 }
 
 Future<void> createTables() async {
   {
     await Sql.create('author', ifNotExists: true)
-        .addInt('_id', isPrimary: true, auto: true)
+        .addInt('_id', primary: true, autoIncrement: true)
         .addStr('name', length: 100)
-        .exec(conn);
+        .exec(adapter);
   }
 
   {
     await Sql.create('post', ifNotExists: true)
-        .addInt('_id', isPrimary: true, auto: true)
-        .addInt('authorId', foreign: References('author', '_id'))
+        .addInt('_id', primary: true, autoIncrement: true)
+        .addInt('authorId', foreignTable: 'author', foreignCol: '_id')
         .addStr('message', length: 100)
         .addInt('likes')
-        .exec(conn);
+        .exec(adapter);
   }
 }
 
 Future<int> insertAuthor(String name) =>
-    Sql.insert('author').id('_id').setString('name', 'teja').exec<int>(conn);
+    Sql.insert('author').id('_id').setString('name', 'teja').exec<int>(adapter);
 
 Future<List<Author>> getAuthors() async =>
-    (await Sql.find('author').exec(conn).many())
-        .map((Map map) => Author()
+    (await Sql.find('author').exec(adapter).many())
+        .map((Map map) => new Author()
           ..id = map['_id']
           ..name = map['name'])
         .toList();
 
 Future<Author> getAuthorId(int id) async {
   Find st = Sql.find('author').where(Field('_id').eq(id));
-  Map map = await conn.findOne(st);
-  return Author()
+  Map map = await adapter.findOne(st);
+  return new Author()
     ..id = map['_id']
     ..name = map['name'];
 }
@@ -99,7 +100,7 @@ Future<Author> getAuthorIdWithRelated(int id) async {
 
 Future<void> removeAuthors() async {
   Remove st = Sql.remove('author');
-  await conn.remove(st);
+  await adapter.remove(st);
 }
 
 Future<int> insertPost(int authorId, String message, int likes) =>
@@ -108,29 +109,32 @@ Future<int> insertPost(int authorId, String message, int likes) =>
         .setInt('authorId', authorId)
         .setString('message', message)
         .setInt('likes', likes)
-        .exec(conn);
+        .exec(adapter);
 
 Future<List<Post>> getPosts() =>
-    Sql.find('post').exec(conn).manyTo(Post.fromMap);
+    Sql.find('post').exec(adapter).manyTo(Post.fromMap);
 
-Future<Post> getPostById(int id) =>
-    Sql.find('post').where(Field('_id').eq(id)).exec(conn).oneTo(Post.fromMap);
+Future<Post> getPostById(int id) => Sql.find('post')
+    .where(Field('_id').eq(id))
+    .exec(adapter)
+    .oneTo(Post.fromMap);
 
 Future<Post> getPostByIdRelated(int id) async {
   Find st = Sql.find('post')
       .sel('post.*')
-      .selMany(['author._id', 'author.name'])
+      .selMany(['_id', 'name'], table: 'author')
       .innerJoin('author', 'author')
-      .joinOn(col('post.authorId').eq(col('author._id')))
-      .where(col('post._id').eq(id));
-  Map map = await conn.findOne(st);
+      .joinOn(Field.inTable('post', 'authorId')
+          .eqField(Field.inTable('author', '_id')))
+      .where(Field.inTable('post', '_id').eq(id));
+  Map map = await adapter.findOne(st);
 
-  final post = Post()
+  final post = new Post()
     ..id = map['_id']
     ..authorId = map['authorId']
     ..message = map['message']
     ..likes = map['likes']
-    ..author = (Author()
+    ..author = (new Author()
       ..id = map['authorid']
       ..name = map['name']);
   return post;
@@ -138,12 +142,12 @@ Future<Post> getPostByIdRelated(int id) async {
 
 Future<List<Post>> getPostsByAuthorId(int authorId) => Sql.find('post')
     .where(Field('authorId').eq(authorId))
-    .exec(conn)
+    .exec(adapter)
     .manyTo(Post.fromMap);
 
 Future<void> removePosts() async {
   Remove st = Sql.remove('post');
-  await conn.remove(st);
+  await adapter.remove(st);
 }
 
 Future<void> getRelatedPost(Post post) async {
@@ -151,9 +155,7 @@ Future<void> getRelatedPost(Post post) async {
 }
 
 main() async {
-  conn = await PgConn.open('postgres',
-      username: 'postgres', password: 'dart_jaguar');
-  ;
+  await adapter.connect();
 
   await dropTables();
 

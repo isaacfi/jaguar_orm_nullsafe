@@ -1,16 +1,15 @@
 import 'dart:async';
 import 'package:jaguar_orm/jaguar_orm.dart';
-import 'package:jaguar_orm/src/annotations/column.dart';
 
 part 'simple.jorm.dart';
 
 class User {
-  @Column(notNull: true, isPrimary: true)
-  @auto
+  @PrimaryKey(auto: true, isNullable: false)
   int id;
 
   String name;
 
+  @Column(isNullable: true)
   int age;
 
   User({this.id, this.name, this.age});
@@ -20,9 +19,6 @@ class User {
       return id == other.id && name == other.name && age == other.age;
     return false;
   }
-
-  @override
-  int get hashCode => super.hashCode;
 
   String toString() => "User($id, $name, $age)";
 }

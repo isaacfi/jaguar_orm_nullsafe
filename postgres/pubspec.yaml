@@ -5,13 +5,15 @@ authors:
 - Ravi Teja Gudapati <tejainece@gmail.com>
 - Kevin Segaud <segaud.kevin@gmail.com>
 homepage: https://github.com/Jaguar-dart/jaguar_orm
-documentation:
+# documentation:
 
 environment:
   sdk: '>=2.2.0 <3.0.0'
 
 dependencies:
+  analyzer: ^0.38.0
   jaguar_query: # ^4.1.1
+    path: ../query
   postgres: ^1.0.0
   path: ^1.6.2
 
@@ -23,5 +25,5 @@ dev_dependencies:
 dependency_overrides:
   jaguar_orm:
     path: ../orm
-  jaguar_query:
-    path: ../query
+#   jaguar_query:
+#     path: ../query
