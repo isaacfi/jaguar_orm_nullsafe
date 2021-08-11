@@ -15,10 +15,10 @@ dependencies:
     path: ../query
   jaguar_orm: # ^2.2.7
     path: ../orm
-  analyzer: ^2.0.0
+  analyzer: ^1.5.0
   build: ^2.1.0
   logging: ^1.0.1
-  source_gen: ^1.0.5
+  source_gen: ^1.0.0
   meta: ^1.7.0
 
 dev_dependencies:
