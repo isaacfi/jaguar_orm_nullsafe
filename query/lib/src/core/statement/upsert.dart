@@ -79,10 +79,10 @@ class Upsert implements Statement {
   /// Executes the statement with the given adapter.
   Future<T> exec<T>(Adapter adapter) => adapter.upsert<T>(this);
 
-  ImmutableUpsertStatement? _immutable;
+  late ImmutableUpsertStatement _immutable;
 
   /// Read-only representation of this statement.
-  ImmutableUpsertStatement? get asImmutable => _immutable;
+  ImmutableUpsertStatement get asImmutable => _immutable;
 }
 
 class ImmutableUpsertStatement {

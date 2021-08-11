@@ -8,4 +8,4 @@ Builder jaguarSerializerPartBuilder({String? header}) =>
     PartBuilder([BeanGenerator()], '.jorm.dart', header: header);
 
 Builder jaguarOrm(BuilderOptions options) =>
-    jaguarSerializerPartBuilder(header: options.config['header'] as String);
+    jaguarSerializerPartBuilder(header: options.config['header'] as String?);

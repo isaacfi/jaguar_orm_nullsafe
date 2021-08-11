@@ -9,10 +9,10 @@ class And extends Expression {
     _expOut = new UnmodifiableListView<Expression>(_expressions);
   }
 
-  UnmodifiableListView<Expression>? _expOut;
+  late UnmodifiableListView<Expression> _expOut;
 
   /// List of expressions composing this 'logical and' expression
-  UnmodifiableListView<Expression>? get expressions => _expOut;
+  UnmodifiableListView<Expression> get expressions => _expOut;
 
   /// Number of expressions composing this 'logical and' expression
   int get length => _expressions.length;

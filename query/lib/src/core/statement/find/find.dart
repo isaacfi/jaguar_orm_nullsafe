@@ -213,9 +213,9 @@ class Find implements Statement, Whereable {
   FindExecutor<ConnType> exec<ConnType>(Adapter<ConnType> adapter) =>
       FindExecutor<ConnType>(adapter, this);
 
-  ImmutableFindStatement? _immutable;
+  late ImmutableFindStatement _immutable;
 
-  ImmutableFindStatement? get asImmutable => _immutable;
+  ImmutableFindStatement get asImmutable => _immutable;
 }
 
 class ImmutableFindStatement {

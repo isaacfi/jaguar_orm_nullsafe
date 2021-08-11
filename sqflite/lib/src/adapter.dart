@@ -10,10 +10,10 @@ import 'package:jaguar_query_sqflite/composer.dart';
 import 'package:sqflite/sqflite.dart' as sqf;
 
 class SqfliteAdapter implements Adapter<sqf.Database> {
-  sqf.Database _connection;
+  sqf.Database? _connection;
 
-  final String path;
-  final int version;
+  final String? path;
+  final int? version;
 
   SqfliteAdapter(this.path, {this.version});
 
@@ -31,17 +31,17 @@ class SqfliteAdapter implements Adapter<sqf.Database> {
   /// Connects to the database
   Future<void> connect() async {
     if (_connection == null) {
-      _connection = await sqf.openDatabase(path, version: version);
+      _connection = await sqf.openDatabase(path!, version: version);
     }
   }
 
   /// Closes all connections to the database.
   Future<void> close() => connection.close();
 
-  sqf.Database get connection => _connection;
+  sqf.Database get connection => _connection!;
 
   /// Finds one record in the table
-  Future<Map> findOne(Find st) async {
+  Future<Map<String, dynamic>?> findOne(Find st) async {
     String stStr = composeFind(st);
     List<Map<String, dynamic>> list = await connection.rawQuery(stStr);
 
@@ -51,7 +51,7 @@ class SqfliteAdapter implements Adapter<sqf.Database> {
   }
 
   // Finds many records in the table
-  Future<List<Map>> find(Find st) async {
+  Future<List<Map<String, dynamic>>> find(Find st) async {
     String stStr = composeFind(st);
     return connection.rawQuery(stStr);
   }
@@ -69,7 +69,7 @@ class SqfliteAdapter implements Adapter<sqf.Database> {
   }
 
   /// Inserts or update records into the table
-  Future<void> upsertMany<T>(UpsertMany st) async {
+  Future<List<Object?>> upsertMany<T>(UpsertMany st) async {
     List<String> strSt = composeUpsertMany(st);
     final batch = connection.batch();
     for (var query in strSt) {
@@ -145,10 +145,33 @@ class SqfliteAdapter implements Adapter<sqf.Database> {
     } else if (T == num) {
       return v;
     } else if (T == DateTime) {
+      if (v == null) return null as T;
+      if (v is String) return DateTime.parse(v) as T;
+      if (v == int) return DateTime.fromMillisecondsSinceEpoch(v * 1000) as T;
+      return null as T;
+    } else if (T == bool) {
+      if (v == null) return null as T;
+      return (v == 0 ? false : true) as T;
+    } else {
+      throw new Exception("Invalid type $T!");
+    }
+  }
+
+  T? parseNullableValue<T>(dynamic v) {
+    if (T == String) {
+      return v;
+    } else if (T == int) {
+      return v?.toInt();
+    } else if (T == double) {
+      return v?.toDouble();
+    } else if (T == num) {
+      return v;
+    } else if (T == DateTime) {
       if (v == null) return null;
       if (v is String) return DateTime.parse(v) as T;
       if (v == int) return DateTime.fromMillisecondsSinceEpoch(v * 1000) as T;
-      return null;
+      throw new Exception(
+          "Can parse date, required int or String but found: ${v.dartType} $v");
     } else if (T == bool) {
       if (v == null) return null;
       return (v == 0 ? false : true) as T;

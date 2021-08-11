@@ -25,20 +25,20 @@ class UpdateMany implements Statement /*, Whereable */ {
 
   Future<void> exec<T>(Adapter adapter) => adapter.updateMany(this);
 
-  ImmutableUpdateManyStatement? _immutable;
+  late ImmutableUpdateManyStatement _immutable;
 
   /// Read-only representation of this statement.
-  ImmutableUpdateManyStatement? get asImmutable => _immutable;
+  ImmutableUpdateManyStatement get asImmutable => _immutable;
 }
 
 class ImmutableUpdateManyStatement {
   final UpdateMany _inner;
 
   ImmutableUpdateManyStatement(this._inner)
-      : values = UnmodifiableListView<ImmutableUpdateStatement?>(
+      : values = UnmodifiableListView<ImmutableUpdateStatement>(
             _inner._bulkValues.map((values) => values.asImmutable));
 
   String get tableName => _inner.name;
 
-  final UnmodifiableListView<ImmutableUpdateStatement?> values;
+  final UnmodifiableListView<ImmutableUpdateStatement> values;
 }

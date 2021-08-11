@@ -50,10 +50,10 @@ class UpsertMany implements Statement {
   /// Executes the statement with the given adapter.
   Future<void> exec<T>(Adapter adapter) => adapter.upsertMany<T>(this);
 
-  ImmutableUpsertManyStatement? _immutable;
+  late ImmutableUpsertManyStatement _immutable;
 
   /// Read-only representation of this statement.
-  ImmutableUpsertManyStatement? get asImmutable => _immutable;
+  ImmutableUpsertManyStatement get asImmutable => _immutable;
 }
 
 class ImmutableUpsertManyStatement {

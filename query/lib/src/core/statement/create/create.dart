@@ -126,9 +126,9 @@ class Create implements Statement {
 
   Future<void> exec(Adapter adapter) => adapter.createTable(this);
 
-  ImmutableCreateStatement? _immutable;
+  late ImmutableCreateStatement _immutable;
 
-  ImmutableCreateStatement? get asImmutable => _immutable;
+  ImmutableCreateStatement get asImmutable => _immutable;
 }
 
 class ImmutableCreateStatement {

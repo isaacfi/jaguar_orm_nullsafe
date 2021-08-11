@@ -108,9 +108,9 @@ class Update implements Statement, Settable, Whereable {
 
   Future<int> exec(Adapter adapter) => adapter.update(this);
 
-  ImmutableUpdateStatement? _immutable;
+  late ImmutableUpdateStatement _immutable;
 
-  ImmutableUpdateStatement? get asImmutable => _immutable;
+  ImmutableUpdateStatement get asImmutable => _immutable;
 }
 
 class ImmutableUpdateStatement {

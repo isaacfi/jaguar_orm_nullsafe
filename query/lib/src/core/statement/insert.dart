@@ -80,10 +80,10 @@ class Insert implements Statement, Settable {
   /// Executes the statement with the given adapter.
   Future<T> exec<T>(Adapter adapter) => adapter.insert<T>(this);
 
-  ImmutableInsertStatement? _immutable;
+  late ImmutableInsertStatement _immutable;
 
   /// Read-only representation of this statement.
-  ImmutableInsertStatement? get asImmutable => _immutable;
+  ImmutableInsertStatement get asImmutable => _immutable;
 
 //  Insert setId<ValType>(Field<ValType> field, ValType value) {
 //    _id = field.name;

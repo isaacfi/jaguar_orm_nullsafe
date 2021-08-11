@@ -87,9 +87,9 @@ class JoinedTable implements Table {
     }
   }
 
-  QueryJoinedTableInfo? _info;
+  late QueryJoinedTableInfo _info;
 
-  QueryJoinedTableInfo? get info => _info;
+  QueryJoinedTableInfo get info => _info;
 }
 
 class QueryJoinedTableInfo {
