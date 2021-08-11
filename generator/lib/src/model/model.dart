@@ -74,7 +74,9 @@ class WriterModel {
       this.belongTos, this.beanedForeignAssociations, this.preloads);
 
   Preload? findHasXByAssociation(DartType association) {
-    return preloads.firstWhereOrNull((p) => p.bean == association);
+    return preloads.firstWhereOrNull((p) =>
+        p.bean.getDisplayString(withNullability: false) ==
+        association.getDisplayString(withNullability: false));
 
     /*
     if (found == null) {

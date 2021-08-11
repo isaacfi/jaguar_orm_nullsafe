@@ -88,7 +88,6 @@ class ParsedBean {
           .detect();
 
       final Preload? other = info.findHasXByAssociation(clazz.thisType);
-
       if (other == null) continue;
 
       if (current == null) {
@@ -206,7 +205,7 @@ class ParsedBean {
         if (ff == null)
           throw Exception('Foreign key in foreign model not found!');
 
-        m.foreignFields!.add(ff);
+        m.foreignFields.add(ff);
       }
     }
 
@@ -403,7 +402,8 @@ class ParsedBean {
           final WriterModel info =
               ParsedBean(bean.element as ClassElement, doRelations: false)
                   .detect();
-          g = info.belongTos[curBean];
+          g = info.belongTos.values.toList().firstWhereOrNull((bts) =>
+              bts.beanName == curBean.getDisplayString(withNullability: false));
           if (g == null || g is! BelongsToAssociation)
             throw Exception('Association $bean not found! Field ${f.name}.');
         }

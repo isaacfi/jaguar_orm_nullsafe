@@ -193,7 +193,7 @@ class Field<ValType> {
   ///     UpdateStatement update = UpdateStatement();
   ///     Field<int> age = Field<int>('age');
   ///     update.set(age.set(20));
-  SetColumn<ValType> set(ValType value) => SetColumn<ValType>(name, value);
+  SetColumn<ValType> set(ValType? value) => SetColumn<ValType>(name, value);
 
   Cond<ValType> operator <(ValType other) {
     return lt(other);

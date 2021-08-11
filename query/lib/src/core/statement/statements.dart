@@ -22,7 +22,7 @@ class SetColumn<ValType> {
   final String name;
 
   /// Value of the column
-  final ValType value;
+  final ValType? value;
 
   SetColumn(this.name, this.value);
 
