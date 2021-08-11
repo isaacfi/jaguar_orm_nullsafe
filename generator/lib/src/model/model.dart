@@ -1,7 +1,7 @@
 library jaguar_orm.generator.model;
 
-import 'package:meta/meta.dart';
 import 'package:analyzer/dart/element/type.dart';
+import 'package:collection/collection.dart';
 import 'package:jaguar_orm_gen/src/common/common.dart';
 
 part 'association.dart';
@@ -28,22 +28,22 @@ class Field {
 
   final bool autoIncrement;
 
-  final int length;
+  final int? length;
 
   final bool isPrimary;
 
-  final Foreign foreign;
+  final Foreign? foreign;
 
-  final String unique;
+  final String? unique;
 
-  Field(this.type, this.field, String colName,
-      {@required this.isNullable,
-      @required this.autoIncrement,
-      @required this.length,
-      @required this.isPrimary,
-      @required this.foreign,
-      @required this.unique,
-      @required this.isFinal})
+  Field(this.type, this.field, String? colName,
+      {required this.isNullable,
+      required this.autoIncrement,
+      required this.length,
+      required this.isPrimary,
+      required this.foreign,
+      required this.unique,
+      required this.isFinal})
       : colName = colName ?? field;
 }
 
@@ -67,15 +67,14 @@ class WriterModel {
 
   final List<Preload> preloads;
 
-  Field fieldByColName(String colName) => fields.values
-      .firstWhere((Field f) => f.colName == colName, orElse: () => null);
+  Field? fieldByColName(String colName) =>
+      fields.values.firstWhereOrNull((Field f) => f.colName == colName);
 
   WriterModel(this.name, this.modelType, this.fields, this.primary,
       this.belongTos, this.beanedForeignAssociations, this.preloads);
 
-  Preload findHasXByAssociation(DartType association) {
-    return preloads.firstWhere((p) => p.bean == association,
-        orElse: () => null);
+  Preload? findHasXByAssociation(DartType association) {
+    return preloads.firstWhereOrNull((p) => p.bean == association);
 
     /*
     if (found == null) {
@@ -86,7 +85,7 @@ class WriterModel {
     */
   }
 
-  BelongsToAssociation getMatchingManyToMany(BelongsToAssociation val) {
+  BelongsToAssociation? getMatchingManyToMany(BelongsToAssociation val) {
     for (BelongsToAssociation f in belongTos.values) {
       if (!f.belongsToMany) continue;
 
@@ -118,17 +117,18 @@ String getValType(String type) {
 abstract class Preload {
   DartType get bean;
 
-  String get beanName => bean.name;
+  String get beanName => bean.getDisplayString(withNullability: false);
 
   String get beanInstanceName => uncap(modelName) + 'Bean';
 
-  String get modelName => getModelForBean(bean).name;
+  String get modelName =>
+      getModelForBean(bean).getDisplayString(withNullability: false);
 
   String get property;
 
   List<Field> get fields;
 
-  List<Field> get foreignFields;
+  List<Field>? get foreignFields;
 
   bool get hasMany;
 }
@@ -154,21 +154,23 @@ class PreloadManyToMany extends Preload {
 
   final DartType targetBean;
 
-  String get targetBeanName => targetBean.name;
+  String get targetBeanName =>
+      targetBean.getDisplayString(withNullability: false);
 
   String get targetBeanInstanceName => uncap(targetModelName) + 'Bean';
 
-  String get targetModelName => getModelForBean(targetBean).name;
+  String get targetModelName =>
+      getModelForBean(targetBean).getDisplayString(withNullability: false);
 
   final String property;
 
-  final WriterModel targetInfo;
+  final WriterModel? targetInfo;
 
-  final WriterModel beanInfo;
+  final WriterModel? beanInfo;
 
   final List<Field> fields = <Field>[];
 
-  final List<Field> foreignFields;
+  final List<Field>? foreignFields;
 
   final bool hasMany = true;
 

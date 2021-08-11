@@ -1,5 +1,5 @@
 library jaguar_orm.generator.writer;
-
+import 'package:collection/collection.dart';
 import 'package:jaguar_orm_gen/src/model/model.dart';
 
 class Writer {
@@ -126,7 +126,8 @@ class Writer {
         final foreign = f.foreign;
         if (foreign is BelongsToForeign) {
           _write(', foreignTable: ${foreign.beanInstanceName}.tableName');
-          _write(", foreignCol: ${foreign.beanInstanceName}.${foreign.refCol}.name");
+          _write(
+              ", foreignCol: ${foreign.beanInstanceName}.${foreign.refCol}.name");
         } else {
           throw Exception('Unimplemented!');
         }
@@ -244,7 +245,8 @@ class Writer {
         .map((Field f) => 'where(this.${f.field}.eq(model.${f.field}))')
         .join('.');
     _w.write(wheres);
-    _w.write('.setMany(toSetColumns(model, only: only, onlyNonNull: onlyNonNull));');
+    _w.write(
+        '.setMany(toSetColumns(model, only: only, onlyNonNull: onlyNonNull));');
     _w.writeln('retId = adapter.update(update);');
 
     _w.writeln('}');
@@ -294,7 +296,9 @@ class Writer {
           _writeln('for(final child in model.${p.property}) {');
           _writeln(
               'await ${p.targetBeanInstanceName}.upsert(child, cascade: cascade);');
-          if (_b.modelType.compareTo(p.targetInfo.modelType) > 0) {
+          if (_b.modelType.compareTo(
+                  p.targetInfo == null ? '' : p.targetInfo!.modelType!) >
+              0) {
             _writeln(
                 'await ${p.beanInstanceName}.attach(newModel, child, upsert: true);');
           } else {
@@ -322,7 +326,8 @@ class Writer {
       _w.write('if(cascade || isForeignKeyEnabled)  {');
       _w.write('final List<Future> futures = [];');
       _w.write('for (var model in models) {');
-      _w.write('futures.add(upsert(model, cascade: cascade, isForeignKeyEnabled: isForeignKeyEnabled));');
+      _w.write(
+          'futures.add(upsert(model, cascade: cascade, isForeignKeyEnabled: isForeignKeyEnabled));');
       _w.write('}');
       _w.writeln('await Future.wait(futures);');
       _w.writeln('return;');
@@ -405,7 +410,9 @@ class Writer {
           _writeln('for(final child in model.${p.property}) {');
           _writeln(
               'await ${p.targetBeanInstanceName}.insert(child, cascade: cascade);');
-          if (_b.modelType.compareTo(p.targetInfo.modelType) > 0) {
+          if (_b.modelType.compareTo(
+                  p.targetInfo == null ? '' : p.targetInfo!.modelType!) >
+              0) {
             _writeln('await ${p.beanInstanceName}.attach(newModel, child);');
           } else {
             _writeln('await ${p.beanInstanceName}.attach(child, newModel);');
@@ -557,7 +564,7 @@ class Writer {
     _w.write(
         'data.add(toSetColumns(model, only: only, onlyNonNull: onlyNonNull).toList());');
 
-    String wheres;
+    String? wheres;
     for (var prim in _b.primary) {
       if (wheres == null) {
         wheres = 'this.${prim.field}.eq(model.${prim.field})';
@@ -664,7 +671,7 @@ class Writer {
   }
 
   void _writeFindOneByBeanedAssociation(BeanedAssociation m) {
-    if (!m.byHasMany) {
+    if (!(m.byHasMany ?? false)) {
       _w.write('Future<${_b.modelType}>');
     } else {
       _w.write('Future<List<${_b.modelType}>>');
@@ -684,7 +691,7 @@ class Writer {
     _w.writeln(';');
 
     if (_b.preloads.length > 0) {
-      if (!m.byHasMany) {
+      if (!(m.byHasMany ?? false)) {
         _write('final ${_b.modelType} model = await ');
         _writeln('findOne(find);');
 
@@ -705,7 +712,7 @@ class Writer {
       }
     } else {
       _write('return ');
-      if (!m.byHasMany) {
+      if (!(m.byHasMany ?? false)) {
         _writeln('findOne(find);');
       } else {
         _writeln('findMany(find);');
@@ -806,9 +813,9 @@ class Writer {
         _write(_b.modelType);
         _write('(');
         final String args = p.foreignFields
-            .map((Field f) => f.foreign.refCol)
+            .map((Field f) => f.foreign!.refCol)
             .map(_b.fieldByColName)
-            .map((Field f) => 'model.${f.field}')
+            .map((Field? f) => 'model.${f!.field}')
             .join(',');
         _write(args);
         _write(', preload: cascade, cascade: cascade');
@@ -840,9 +847,9 @@ class Writer {
         _write('(${_b.modelType} model) => [');
         {
           final String args = p.foreignFields
-              .map((Field f) => f.foreign.refCol)
+              .map((Field f) => f.foreign!.refCol)
               .map(_b.fieldByColName)
-              .map((Field f) => 'model.${f.field}')
+              .map((Field? f) => 'model.${f!.field}')
               .join(',');
           _write(args);
         }
@@ -922,7 +929,7 @@ class Writer {
 
     for (Field f in _b.fields.values) {
       if (f.foreign is BelongsToForeign) {
-        BelongsToForeign fb = f.foreign;
+        BelongsToForeign fb = f.foreign as BelongsToForeign;
         if (written.contains(fb.beanInstanceName)) continue;
         written.add(fb.beanInstanceName);
 
@@ -963,12 +970,14 @@ class Writer {
     _writeln('final exp = Or();');
     _writeln('for(final t in dels) {');
     _write('exp.or(');
-    BelongsToAssociation o = _b.getMatchingManyToMany(m);
-    for (int i = 0; i < o.fields.length; i++) {
-      _write(
-          '$beanName.${o.foreignFields[i].field}.eq(t.${o.fields[i].field})');
-      if (i < o.fields.length - 1) {
-        _write('&');
+    BelongsToAssociation? o = _b.getMatchingManyToMany(m);
+    if (o != null) {
+      for (int i = 0; i < o.fields.length; i++) {
+        _write(
+            '$beanName.${o.foreignFields[i].field}.eq(t.${o.fields[i].field})');
+        if (i < o.fields.length - 1) {
+          _write('&');
+        }
       }
     }
     _writeln(');');
@@ -996,12 +1005,14 @@ class Writer {
     _writeln('final exp = Or();');
     _writeln('for(final t in pivots) {');
     _write('exp.or(');
-    BelongsToAssociation o = _b.getMatchingManyToMany(m);
-    for (int i = 0; i < o.fields.length; i++) {
-      _write(
-          '$beanName.${o.foreignFields[i].field}.eq(t.${o.fields[i].field})');
-      if (i < o.fields.length - 1) {
-        _write('&');
+    BelongsToAssociation? o = _b.getMatchingManyToMany(m);
+    if (o != null) {
+      for (int i = 0; i < o.fields.length; i++) {
+        _write(
+            '$beanName.${o.foreignFields[i].field}.eq(t.${o.fields[i].field})');
+        if (i < o.fields.length - 1) {
+          _write('&');
+        }
       }
     }
     _writeln(');');
@@ -1012,38 +1023,40 @@ class Writer {
   }
 
   void _writeAttach() {
-    final BelongsToAssociation m = _b.belongTos.values.firstWhere(
+    final BelongsToAssociation? m = _b.belongTos.values.firstWhereOrNull(
         (BelongsToAssociation f) =>
-            f is BelongsToAssociation && f.belongsToMany,
-        orElse: () => null);
+            f is BelongsToAssociation && f.belongsToMany);
     if (m == null) return;
 
-    final BelongsToAssociation m1 = _b.getMatchingManyToMany(m);
+    final BelongsToAssociation? m1 = _b.getMatchingManyToMany(m);
+    if (m1 != null) {
+      _writeln('Future<dynamic> attach(');
+      if (m.modelName.compareTo(m1.modelName) > 0) {
+        _write('${m.modelName} one, ${m1.modelName} two');
+      } else {
+        _write('${m1.modelName} one, ${_cap(m.modelName)} two');
+      }
+      _writeln(', {bool upsert = false}) async {');
+      _writeln('final ret = ${_b.modelType}();');
 
-    _writeln('Future<dynamic> attach(');
-    if (m.modelName.compareTo(m1.modelName) > 0) {
-      _write('${m.modelName} one, ${m1.modelName} two');
-    } else {
-      _write('${m1.modelName} one, ${_cap(m.modelName)} two');
-    }
-    _writeln(', {bool upsert = false}) async {');
-    _writeln('final ret = ${_b.modelType}();');
-
-    if (m.modelName.compareTo(m1.modelName) > 0) {
-      for (int i = 0; i < m.fields.length; i++) {
-        _writeln('ret.${m.fields[i].field} = one.${m.foreignFields[i].field};');
-      }
-      for (int i = 0; i < m1.fields.length; i++) {
-        _writeln(
-            'ret.${m1.fields[i].field} = two.${m1.foreignFields[i].field};');
-      }
-    } else {
-      for (int i = 0; i < m1.fields.length; i++) {
-        _writeln(
-            'ret.${m1.fields[i].field} = one.${m1.foreignFields[i].field};');
-      }
-      for (int i = 0; i < m.fields.length; i++) {
-        _writeln('ret.${m.fields[i].field} = two.${m.foreignFields[i].field};');
+      if (m.modelName.compareTo(m1.modelName) > 0) {
+        for (int i = 0; i < m.fields.length; i++) {
+          _writeln(
+              'ret.${m.fields[i].field} = one.${m.foreignFields[i].field};');
+        }
+        for (int i = 0; i < m1.fields.length; i++) {
+          _writeln(
+              'ret.${m1.fields[i].field} = two.${m1.foreignFields[i].field};');
+        }
+      } else {
+        for (int i = 0; i < m1.fields.length; i++) {
+          _writeln(
+              'ret.${m1.fields[i].field} = one.${m1.foreignFields[i].field};');
+        }
+        for (int i = 0; i < m.fields.length; i++) {
+          _writeln(
+              'ret.${m.fields[i].field} = two.${m.foreignFields[i].field};');
+        }
       }
     }
     _writeln('''

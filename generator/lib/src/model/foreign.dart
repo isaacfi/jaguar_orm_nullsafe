@@ -18,9 +18,9 @@ class BelongsToForeign implements Foreign {
   BelongsToForeign(this.bean, this.refCol, this.byHasMany, this.belongsToMany)
       : model = getModelForBean(bean);
 
-  String get beanName => bean.name;
+  String get beanName => bean.getDisplayString(withNullability: false);
 
-  String get modelName => model.name;
+  String get modelName => model.getDisplayString(withNullability: false);
 
   String get beanInstanceName => uncap(modelName) + 'Bean';
 }
