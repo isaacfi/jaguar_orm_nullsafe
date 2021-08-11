@@ -48,12 +48,12 @@ class InsertMany implements Statement {
   }
 
   /// Executes the statement with the given adapter.
-  Future<T> exec<T>(Adapter adapter) => adapter.insertMany<T>(this);
+  Future<void> exec<T>(Adapter adapter) => adapter.insertMany<T>(this);
 
-  ImmutableInsertManyStatement _immutable;
+  ImmutableInsertManyStatement? _immutable;
 
   /// Read-only representation of this statement.
-  ImmutableInsertManyStatement get asImmutable => _immutable;
+  ImmutableInsertManyStatement? get asImmutable => _immutable;
 }
 
 class ImmutableInsertManyStatement {

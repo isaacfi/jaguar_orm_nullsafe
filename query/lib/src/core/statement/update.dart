@@ -7,7 +7,7 @@ class Update implements Statement, Settable, Whereable {
 
   Expression _where = And();
 
-  Update(this.name, {Expression where}) {
+  Update(this.name, {Expression? where}) {
     if (where != null) this.where(where);
     _immutable = ImmutableUpdateStatement(this);
   }
@@ -108,9 +108,9 @@ class Update implements Statement, Settable, Whereable {
 
   Future<int> exec(Adapter adapter) => adapter.update(this);
 
-  ImmutableUpdateStatement _immutable;
+  ImmutableUpdateStatement? _immutable;
 
-  ImmutableUpdateStatement get asImmutable => _immutable;
+  ImmutableUpdateStatement? get asImmutable => _immutable;
 }
 
 class ImmutableUpdateStatement {

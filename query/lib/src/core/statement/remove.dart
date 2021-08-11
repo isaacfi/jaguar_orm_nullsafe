@@ -61,9 +61,9 @@ class Remove implements Statement, Whereable {
 
   Future<int> exec(Adapter adapter) => adapter.remove(this);
 
-  QueryRemoveInfo _info;
+  QueryRemoveInfo? _info;
 
-  QueryRemoveInfo get info => _info;
+  QueryRemoveInfo? get info => _info;
 }
 
 class QueryRemoveInfo {

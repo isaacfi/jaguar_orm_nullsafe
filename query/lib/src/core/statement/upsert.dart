@@ -13,7 +13,7 @@ class Upsert implements Statement {
 
   final Map<String, dynamic> _values = {};
 
-  String _id;
+  String? _id;
 
   Upsert(this.name) {
     _immutable = ImmutableUpsertStatement(this);
@@ -79,10 +79,10 @@ class Upsert implements Statement {
   /// Executes the statement with the given adapter.
   Future<T> exec<T>(Adapter adapter) => adapter.upsert<T>(this);
 
-  ImmutableUpsertStatement _immutable;
+  ImmutableUpsertStatement? _immutable;
 
   /// Read-only representation of this statement.
-  ImmutableUpsertStatement get asImmutable => _immutable;
+  ImmutableUpsertStatement? get asImmutable => _immutable;
 }
 
 class ImmutableUpsertStatement {

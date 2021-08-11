@@ -12,7 +12,7 @@ class Insert implements Statement, Settable {
   final String name;
   final bool ignoreIfExist;
 
-  String _id;
+  String? _id;
 
   final Map<String, dynamic> _values = {};
 
@@ -80,10 +80,10 @@ class Insert implements Statement, Settable {
   /// Executes the statement with the given adapter.
   Future<T> exec<T>(Adapter adapter) => adapter.insert<T>(this);
 
-  ImmutableInsertStatement _immutable;
+  ImmutableInsertStatement? _immutable;
 
   /// Read-only representation of this statement.
-  ImmutableInsertStatement get asImmutable => _immutable;
+  ImmutableInsertStatement? get asImmutable => _immutable;
 
 //  Insert setId<ValType>(Field<ValType> field, ValType value) {
 //    _id = field.name;
@@ -104,7 +104,7 @@ class ImmutableInsertStatement {
 
   String get table => _inner.name;
 
-  String get id => _inner._id;
+  String? get id => _inner._id;
 
   bool get ignoreIfExist => _inner.ignoreIfExist;
 
