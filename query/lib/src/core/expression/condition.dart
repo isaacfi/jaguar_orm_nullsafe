@@ -9,7 +9,7 @@ class Cond<ValType> extends Expression {
   final Op op;
 
   /// The value of the relational expression the [field] is being compared against
-  final ValType rhs;
+  final ValType? rhs;
 
   const Cond(this.lhs, this.op, this.rhs);
 
@@ -37,7 +37,7 @@ class Cond<ValType> extends Expression {
       Cond<ValType>(field, Op.Is, value);
 
   /// DSL to create 'IS NOT' relational condition
-  static Cond<ValType> isNot<ValType>(Field<ValType> field, ValType value) =>
+  static Cond<ValType> isNot<ValType>(Field<ValType> field, ValType? value) =>
       Cond<ValType>(field, Op.IsNot, value);
 
   /// DSL to create 'is not equal to' relational condition

@@ -39,7 +39,7 @@ class Field<ValType> {
   ///     FindStatement find = FindStatement();
   ///     Field<String> phone = Field<String>('phone');
   ///     find.where(phone.isNot(null));
-  Cond<ValType> isNot(ValType value) => Cond.isNot<ValType>(this, value);
+  Cond<ValType> isNot(ValType? value) => Cond.isNot<ValType>(this, value);
 
   /// Returns a "not equal to" condition
   ///
