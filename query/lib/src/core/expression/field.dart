@@ -32,14 +32,14 @@ class Field<ValType> {
   ///     FindStatement find = FindStatement();
   ///     Field<String> phone = Field<String>('phone');
   ///     find.where(phone.iss(null));
-  Cond<ValType> iss(ValType value) => Cond.iss<ValType>(this, value);
+  Cond<ValType> get isNull => Cond.isNull<ValType>(this);
 
   /// Returns an "IS NOT" condition, i.e. 'where var IS NOT null'
   ///
   ///     FindStatement find = FindStatement();
   ///     Field<String> phone = Field<String>('phone');
   ///     find.where(phone.isNot(null));
-  Cond<ValType> isNot(ValType? value) => Cond.isNot<ValType>(this, value);
+  Cond<ValType> get isNotNull => Cond.isNotNull<ValType>(this);
 
   /// Returns a "not equal to" condition
   ///
@@ -83,6 +83,14 @@ class Field<ValType> {
   ///     find.where(age.between(20, 30));
   Between<ValType> between(ValType low, ValType high) =>
       Cond.between<ValType>(this, low, high);
+
+  /// Returns an "in" condition
+  ///
+  ///     FindStatement find = FindStatement();
+  ///     Field<int> age = Field<int>('age');
+  ///     find.where(age.isIn(<int>{20, 30}));
+  InOperation<ValType> isIn(Set<ValType> value) =>
+      Cond.isIn<ValType>(this, value);
 
   Field<ValType> aliasAs(String tableAlias) =>
       Field<ValType>.inTable(tableAlias, name);
@@ -193,7 +201,10 @@ class Field<ValType> {
   ///     UpdateStatement update = UpdateStatement();
   ///     Field<int> age = Field<int>('age');
   ///     update.set(age.set(20));
-  SetColumn<ValType> set(ValType? value) => SetColumn<ValType>(name, value);
+  SetColumn<ValType> set(ValType value) => SetColumn<ValType>(name, value);
+
+  SetColumn<ValType?> setNullable(ValType? value) =>
+      SetColumn<ValType?>(name, value);
 
   Cond<ValType> operator <(ValType other) {
     return lt(other);
