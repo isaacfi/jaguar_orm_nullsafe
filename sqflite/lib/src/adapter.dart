@@ -135,23 +135,28 @@ class SqfliteAdapter implements Adapter<sqf.Database> {
     await connection.execute(strSt);
   }
 
-  T? parseValue<T>(dynamic v) {
-    if (T == String) {
-      return v;
-    } else if (T == int) {
+  bool _typesEqual<T1, T2>() => T1 == T2;
+
+  T parseValue<T>(dynamic v) {
+    if (_typesEqual<T, String>() || _typesEqual<T, String?>()) {
+      return v as T;
+    } else if (_typesEqual<T, int>() || _typesEqual<T, int?>()) {
+      if (v == null) return null as T;
       return v?.toInt();
-    } else if (T == double) {
+    } else if (_typesEqual<T, double>() || _typesEqual<T, double?>()) {
+      if (v == null) return null as T;
       return v?.toDouble();
-    } else if (T == num) {
+    } else if (_typesEqual<T, num>() || _typesEqual<T, num?>()) {
+      if (v == null) return null as T;
       return v;
-    } else if (T == DateTime) {
-      if (v == null) return null;
+    } else if (_typesEqual<T, DateTime>() || _typesEqual<T, DateTime?>()) {
+      if (v == null) return null as T;
       if (v is String) return DateTime.parse(v) as T;
       if (v == int) return DateTime.fromMillisecondsSinceEpoch(v * 1000) as T;
       throw new Exception(
           "Can parse date, required int or String but found: ${v.dartType} $v");
-    } else if (T == bool) {
-      if (v == null) return null;
+    } else if (_typesEqual<T, bool>() || _typesEqual<T, bool?>()) {
+      if (v == null) return null as T;
       return (v == 0 ? false : true) as T;
     } else {
       throw new Exception("Invalid type $T!");
