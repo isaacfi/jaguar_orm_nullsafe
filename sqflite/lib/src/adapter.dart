@@ -135,29 +135,7 @@ class SqfliteAdapter implements Adapter<sqf.Database> {
     await connection.execute(strSt);
   }
 
-  T parseValue<T>(dynamic v) {
-    if (T == String) {
-      return v;
-    } else if (T == int) {
-      return v?.toInt();
-    } else if (T == double) {
-      return v?.toDouble();
-    } else if (T == num) {
-      return v;
-    } else if (T == DateTime) {
-      if (v == null) return null as T;
-      if (v is String) return DateTime.parse(v) as T;
-      if (v == int) return DateTime.fromMillisecondsSinceEpoch(v * 1000) as T;
-      return null as T;
-    } else if (T == bool) {
-      if (v == null) return null as T;
-      return (v == 0 ? false : true) as T;
-    } else {
-      throw new Exception("Invalid type $T!");
-    }
-  }
-
-  T? parseNullableValue<T>(dynamic v) {
+  T? parseValue<T>(dynamic v) {
     if (T == String) {
       return v;
     } else if (T == int) {

@@ -58,9 +58,7 @@ abstract class Adapter<ConnType> {
   Future<void> dropDb(DropDb st);
 
   /// Parses values coming from database into Dart values
-  T parseValue<T>(dynamic v);
-
-  T? parseNullableValue<T>(dynamic v);
+  T? parseValue<T>(dynamic v);
 }
 
 /// Convenience class to execute `Find` statement using [adapter]
