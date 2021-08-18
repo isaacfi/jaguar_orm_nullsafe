@@ -153,7 +153,12 @@ class SqfliteAdapter implements Adapter<sqf.Database> {
     } else if (_typesEqual<T, num>() || _typesEqual<T, num?>()) {
       return v;
     } else if (_typesEqual<T, DateTime>() || _typesEqual<T, DateTime?>()) {
-      if (v == null) return null as T;
+      if (v == null) {
+        if (_typesEqual<T, DateTime>()) {
+          return DateTime.fromMicrosecondsSinceEpoch(0) as T;
+        }
+        return null as T;
+      }
       if (v is String) return DateTime.parse(v) as T;
       if (v == int) return DateTime.fromMillisecondsSinceEpoch(v * 1000) as T;
       throw new Exception(
