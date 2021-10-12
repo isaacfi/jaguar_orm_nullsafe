@@ -243,7 +243,7 @@ class Writer {
     _w.writeln('if (retId == null) {');
     _w.write('final Update update = updater.');
     final String wheres = _b.primary
-        .map((Field f) => 'where(this.${f.field}.eq(model.${f.field}))')
+        .map((Field f) => 'where(this.${f.field}.eq(model.${f.field}!))')
         .join('.');
     _w.write(wheres);
     _w.write(
@@ -468,7 +468,7 @@ class Writer {
           'Future<int> update(${_b.modelType} model, {bool cascade = false, bool associate = false, Set<String>? only, bool onlyNonNull = false}) async {');
       _w.write('final Update update = updater.');
       final String wheres = _b.primary
-          .map((Field f) => 'where(this.${f.field}.eq(model.${f.field}))')
+          .map((Field f) => 'where(this.${f.field}.eq(model.${f.field}!))')
           .join('.');
       _w.write(wheres);
       _w.writeln(
@@ -482,7 +482,7 @@ class Writer {
         'Future<int> update(${_b.modelType} model, {bool cascade = false, bool associate = false, Set<String>? only, bool onlyNonNull = false}) async {');
     _w.write('final Update update = updater.');
     final String wheres = _b.primary
-        .map((Field f) => 'where(this.${f.field}.eq(model.${f.field}))')
+        .map((Field f) => 'where(this.${f.field}.eq(model.${f.field}!))')
         .join('.');
     _w.write(wheres);
     _w.writeln(
@@ -569,9 +569,9 @@ class Writer {
     String? wheres;
     for (var prim in _b.primary) {
       if (wheres == null) {
-        wheres = 'this.${prim.field}.eq(model.${prim.field})';
+        wheres = 'this.${prim.field}.eq(model.${prim.field}!)';
       } else {
-        wheres = '$wheres.and(this.${prim.field}.eq(model.${prim.field}))';
+        wheres = '$wheres.and(this.${prim.field}.eq(model.${prim.field}!))';
       }
     }
     _w.write('where.add($wheres);');
@@ -736,7 +736,7 @@ class Writer {
     _writeln('for(final model in models) {');
     _write('remove.or(');
     final String wheres = _b.primary
-        .map((Field f) => 'this.${f.field}.eq(model.${f.field})')
+        .map((Field f) => 'this.${f.field}.eq(model.${f.field}!)')
         .join('|');
     _w.write(wheres);
     _writeln(');');
