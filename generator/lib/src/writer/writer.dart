@@ -601,7 +601,8 @@ class Writer {
     _writeln(') async {');
     _writeln('final Find find = finder.');
     final String wheres = _b.primary
-        .map((Field f) => 'where(this.${f.field}.eq(${f.field}))')
+        .map((Field f) =>
+            'where(this.${f.field}.eq(${f.field}${f.type.endsWith('?') ? '!' : ''}))')
         .join('.');
     _write(wheres);
     _writeln(';');
@@ -629,7 +630,8 @@ class Writer {
       _w.writeln(') async {');
       _w.writeln('final Remove remove = remover.');
       final String wheres = _b.primary
-          .map((Field f) => 'where(this.${f.field}.eq(${f.field}))')
+          .map((Field f) =>
+              'where(this.${f.field}.eq(${f.field}${f.type.endsWith('?') ? '!' : ''}))')
           .join('.');
       _w.write(wheres);
       _w.writeln(';');
