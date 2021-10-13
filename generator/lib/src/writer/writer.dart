@@ -135,14 +135,14 @@ class Writer {
       }
 
       if (f.autoIncrement) {
-        if (f.type != 'int') {
+        if (!f.type.startsWith('int')) {
           throw Exception('Auto increment is allowed only on int columns!');
         }
         _write(", autoIncrement: ${f.autoIncrement}");
       }
 
       if (f.length != null) {
-        if (f.type != 'String') {
+        if (!f.type.startsWith('String')) {
           throw Exception('Length is allowed only on text columns!');
         }
         _write(", length: ${f.length}");
