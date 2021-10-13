@@ -458,7 +458,7 @@ Field parseColumn(FieldElement f, DartObject obj) {
   final int? length = obj.getField('length')?.toIntValue();
   if (isColumn.isExactlyType(obj.type!)) {
     return Field(
-        f.type.getDisplayString(withNullability: false), f.name, colName,
+        f.type.getDisplayString(withNullability: true), f.name, colName,
         isNullable: isNullable ?? true,
         autoIncrement: autoIncrement ?? false,
         length: length,
@@ -468,7 +468,7 @@ Field parseColumn(FieldElement f, DartObject obj) {
         isFinal: f.isFinal);
   } else if (isPrimaryKey.isExactlyType(obj.type!)) {
     return Field(
-        f.type.getDisplayString(withNullability: false), f.name, colName,
+        f.type.getDisplayString(withNullability: true), f.name, colName,
         isNullable: isNullable ?? true,
         isPrimary: true,
         autoIncrement: autoIncrement ?? false,
@@ -484,7 +484,7 @@ Field parseColumn(FieldElement f, DartObject obj) {
     if (table != null && refCol != null) fore = TableForeign(table, refCol);
 
     return Field(
-        f.type.getDisplayString(withNullability: false), f.name, colName,
+        f.type.getDisplayString(withNullability: true), f.name, colName,
         isNullable: isNullable ?? true,
         isPrimary: isPrimary ?? false,
         foreign: fore,
@@ -506,7 +506,7 @@ Field parseColumn(FieldElement f, DartObject obj) {
     Foreign fore =
         BelongsToForeign(bean, refCol, byHasMany ?? false, toMany ?? false);
     return Field(
-        f.type.getDisplayString(withNullability: false), f.name, colName,
+        f.type.getDisplayString(withNullability: true), f.name, colName,
         isNullable: isNullable ?? true,
         isPrimary: isPrimary ?? false,
         foreign: fore,

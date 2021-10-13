@@ -105,13 +105,13 @@ class Writer {
 
       if (f.type == 'String') {
         _write('Str');
-      } else if (f.type == 'bool') {
+      } else if (f.type.startsWith('bool')) {
         _write('Bool');
-      } else if (f.type == 'int') {
+      } else if (f.type.startsWith('int')) {
         _write('Int');
-      } else if (f.type == 'num' || f.type == 'double') {
+      } else if (f.type.startsWith('num') || f.type.startsWith('double')) {
         _write('Double');
-      } else if (f.type == 'DateTime') {
+      } else if (f.type.startsWith('DateTime')) {
         _write('DateTime');
       } else {
         throw Exception('Invalid column data type!');
@@ -243,7 +243,8 @@ class Writer {
     _w.writeln('if (retId == null) {');
     _w.write('final Update update = updater.');
     final String wheres = _b.primary
-        .map((Field f) => 'where(this.${f.field}.eq(model.${f.field}!))')
+        .map((Field f) =>
+            'where(this.${f.field}.eq(model.${f.field}${f.type.endsWith('?') ? '!' : ''}))')
         .join('.');
     _w.write(wheres);
     _w.write(
@@ -468,7 +469,8 @@ class Writer {
           'Future<int> update(${_b.modelType} model, {bool cascade = false, bool associate = false, Set<String>? only, bool onlyNonNull = false}) async {');
       _w.write('final Update update = updater.');
       final String wheres = _b.primary
-          .map((Field f) => 'where(this.${f.field}.eq(model.${f.field}!))')
+          .map((Field f) =>
+              'where(this.${f.field}.eq(model.${f.field}${f.type.endsWith('?') ? '!' : ''}))')
           .join('.');
       _w.write(wheres);
       _w.writeln(
@@ -482,7 +484,8 @@ class Writer {
         'Future<int> update(${_b.modelType} model, {bool cascade = false, bool associate = false, Set<String>? only, bool onlyNonNull = false}) async {');
     _w.write('final Update update = updater.');
     final String wheres = _b.primary
-        .map((Field f) => 'where(this.${f.field}.eq(model.${f.field}!))')
+        .map((Field f) =>
+            'where(this.${f.field}.eq(model.${f.field}${f.type.endsWith('?') ? '!' : ''}))')
         .join('.');
     _w.write(wheres);
     _w.writeln(
@@ -736,7 +739,8 @@ class Writer {
     _writeln('for(final model in models) {');
     _write('remove.or(');
     final String wheres = _b.primary
-        .map((Field f) => 'this.${f.field}.eq(model.${f.field}!)')
+        .map((Field f) =>
+            'this.${f.field}.eq(model.${f.field}${f.type.endsWith('?') ? '!' : ''})')
         .join('|');
     _w.write(wheres);
     _writeln(');');
