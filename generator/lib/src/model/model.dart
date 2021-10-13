@@ -100,15 +100,15 @@ class WriterModel {
 }
 
 String getValType(String type) {
-  if (type == 'String') {
+  if (type.startsWith('String')) {
     return 'StrField';
-  } else if (type == 'bool') {
+  } else if (type.startsWith('bool')) {
     return 'BoolField';
-  } else if (type == 'int') {
+  } else if (type.startsWith('int')) {
     return 'IntField';
-  } else if (type == 'num' || type == 'double') {
+  } else if (type.startsWith('num') || type.startsWith('double')) {
     return 'DoubleField';
-  } else if (type == 'DateTime') {
+  } else if (type.startsWith('DateTime')) {
     return 'DateTimeField';
   }
 
