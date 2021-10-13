@@ -103,7 +103,7 @@ class Writer {
     for (final Field f in _b.fields.values) {
       _write('st.add');
 
-      if (f.type == 'String') {
+      if (f.type.startsWith('String')) {
         _write('Str');
       } else if (f.type.startsWith('bool')) {
         _write('Bool');
