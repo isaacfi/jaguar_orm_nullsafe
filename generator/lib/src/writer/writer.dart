@@ -572,9 +572,11 @@ class Writer {
     String? wheres;
     for (var prim in _b.primary) {
       if (wheres == null) {
-        wheres = 'this.${prim.field}.eq(model.${prim.field}!)';
+        wheres =
+            'this.${prim.field}.eq(model.${prim.field}${prim.type.endsWith('?') ? '!' : ''})';
       } else {
-        wheres = '$wheres.and(this.${prim.field}.eq(model.${prim.field}!))';
+        wheres =
+            '$wheres.and(this.${prim.field}.eq(model.${prim.field}${prim.type.endsWith('?') ? '!' : ''}))';
       }
     }
     _w.write('where.add($wheres);');
