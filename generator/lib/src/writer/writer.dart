@@ -660,7 +660,9 @@ class Writer {
       if (p is PreloadOneToX) {
         _write(
             'await ' + p.beanInstanceName + '.removeBy' + _b.modelType + '(');
-        _write(p.fields.map((f) => 'newModel.' + f.field).join(', '));
+        _write(p.fields
+            .map((f) => 'newModel.${f.field}${f.type.endsWith('?') ? '!' : ''}')
+            .join(', '));
         _writeln(');');
       } else if (p is PreloadManyToMany) {
         _write('await ${p.beanInstanceName}.detach${_b.modelType}(newModel);');
@@ -671,7 +673,8 @@ class Writer {
 
     _w.writeln('final Remove remove = remover.');
     final String wheres = _b.primary
-        .map((Field f) => 'where(this.${f.field}.eq(${f.field}))')
+        .map((Field f) =>
+            'where(this.${f.field}.eq(${f.field}${f.type.endsWith('?') ? '!' : ''}))')
         .join('.');
     _w.write(wheres);
     _w.writeln(';');
@@ -694,7 +697,8 @@ class Writer {
 
     _w.writeln('final Find find = finder.');
     final String wheres = m.fields
-        .map((Field f) => 'where(this.${f.field}.eq(${f.field}))')
+        .map((Field f) =>
+            'where(this.${f.field}.eq(${f.field}${f.type.endsWith('?') ? '!' : ''}))')
         .join('.');
     _w.write(wheres);
     _w.writeln(';');
@@ -959,7 +963,7 @@ class Writer {
 
     for (int i = 0; i < m.fields.length; i++) {
       _writeln(
-          'child.${m.fields[i].field} = parent.${m.foreignFields[i].field};');
+          'child.${m.fields[i].field} = parent.${m.foreignFields[i].field}${m.foreignFields[i].type.endsWith('?') ? '!' : ''};');
     }
 
     _writeln('}');
@@ -1019,7 +1023,7 @@ class Writer {
     if (o != null) {
       for (int i = 0; i < o.fields.length; i++) {
         _write(
-            '$beanName.${o.foreignFields[i].field}.eq(t.${o.fields[i].field})');
+            '$beanName.${o.foreignFields[i].field}.eq(t.${o.fields[i].field}${o.fields[i].type.endsWith('?') ? '!' : ''})');
         if (i < o.fields.length - 1) {
           _write('&');
         }
