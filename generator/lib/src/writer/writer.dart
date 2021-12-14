@@ -792,7 +792,7 @@ class Writer {
     final wheres = <String>[];
     for (int i = 0; i < m.fields.length; i++) {
       wheres.add(
-          'this.${m.fields[i].field}.eq(model.${m.foreignFields[i].field})');
+          'this.${m.fields[i].field}.eq(model.${m.foreignFields[i].field}${m.foreignFields[i].type.endsWith('?') ? '!' : ''})');
     }
     _w.write(wheres.join(' & '));
     _writeln(');');
@@ -829,7 +829,7 @@ class Writer {
         final String args = p.foreignFields
             .map((Field f) => f.foreign!.refCol)
             .map(_b.fieldByColName)
-            .map((Field? f) => 'model.${f!.field}')
+            .map((Field? f) => 'model.${f!.field}${f.type.endsWith('?') ? '!' : ''}')
             .join(',');
         _write(args);
         _write(', preload: cascade, cascade: cascade');
