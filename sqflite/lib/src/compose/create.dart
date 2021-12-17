@@ -31,7 +31,8 @@ String composeCreateColumn(final CreateColumn col) {
     throw new Exception('Unknown columns to create ${col.runtimeType}!');
   }
 
-  if (!col.isNullable) sb.write(' NOT NULL');
+  if (!col.isNullable && !(col is CreateInt && col.autoIncrement))
+    sb.write(' NOT NULL');
 
   return sb.toString();
 }
