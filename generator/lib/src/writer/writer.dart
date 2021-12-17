@@ -768,7 +768,7 @@ class Writer {
 
     _w.writeln('final Remove rm = remover.');
     final String wheres = m.fields
-        .map((Field f) => 'where(this.${f.field}.eq(${f.field}))')
+        .map((Field f) => 'where(this.${f.field}.eq(${f.field}${f.type.endsWith('?') ? '!' : ''}))')
         .join('.');
     _w.write(wheres);
     _w.writeln(';');
