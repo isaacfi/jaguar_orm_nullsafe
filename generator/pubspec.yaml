@@ -19,7 +19,7 @@ dependencies:
     git:
       url: https://github.com/isaacfi/jaguar_orm_nullsafe.git
       path: orm
-  analyzer: ^1.7.0
+  analyzer: ^1.7.2
   build: ^2.1.0
   logging: ^1.0.1
   source_gen: ^1.0.0
