@@ -19,7 +19,7 @@ String composeCreateColumn(final CreateColumn col) {
     sb.write(' REAL');
   } else if (col is CreateDateTime) {
     sb.write(' CHAR(');
-      sb.write(25);
+      sb.write(23);
       sb.write(')');
   } else if (col is CreateStr) {
     if (col.length <= 0) {
