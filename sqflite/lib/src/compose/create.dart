@@ -18,7 +18,9 @@ String composeCreateColumn(final CreateColumn col) {
   } else if (col is CreateDouble) {
     sb.write(' REAL');
   } else if (col is CreateDateTime) {
-    sb.write(' TEXT');
+    sb.write(' CHAR(');
+      sb.write(col.length);
+      sb.write(')');
   } else if (col is CreateStr) {
     if (col.length <= 0) {
       sb.write(' TEXT');
