@@ -7,7 +7,7 @@ homepage: https://github.com/Jaguar-dart/jaguar_orm
 # documentation:
 
 environment:
-  sdk: ">=2.12.0 <3.0.0"
+  sdk: ">=2.18.4 <3.0.0"
 
 dependencies:
   jaguar_query: # ^2.2.9
